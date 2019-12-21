@@ -16,27 +16,44 @@ namespace lab6
         {
             InitializeComponent();
         }
-        int k = 4, n, p, x, y, kol, kp;
-
+        int k = 4, n, p, x, y, kol, kp, mis_pos_calc = -1;
+        Random rand = new Random();
         private void button1_Click(object sender, EventArgs e)
         {
             
             Calc_n_p();
             Calc_px();
-            gx = Calc_pol(kk);
-            int[] vrem = new int[gx.Length];
-            arr_copy(ref vrem, mult_pol(gx, p));
-            arr_copy(ref fx, plus_pol(vrem, div_pol(vrem, Calc_pol(px))));
-            foreach (int i in fx) richTextBox1.AppendText(i.ToString());
-            richTextBox1.AppendText("\n");
-            arr_copy(ref fx, Calc_bin(fx));
-            foreach (int i in fx) richTextBox1.AppendText(i.ToString());
-            richTextBox1.AppendText("\n");
+            // gx = Calc_pol(kk);
+            /* int[] vrem = new int[gx.Length];
+             arr_copy(ref vrem, mult_pol(gx, p));
+             arr_copy(ref fx, plus_pol(vrem, div_pol(vrem, Calc_pol(px))));*/
+            Calc_fx();
+            Calc_pos_tab();
+            Calc_mis();
+            foreach (int i in fx_pol) richTextBox1.AppendText(i.ToString());
+            richTextBox1.AppendText(" - степени в полиноме циклического кода\n");
+            foreach (int i in fx_bin) richTextBox1.AppendText(i.ToString());
+            richTextBox1.AppendText("- циклический код\n\n");
+            for (int i = 0; i < fx_bin.Length; i++)
+            {
+                richTextBox1.AppendText(i + 1 + " - ");
+                for (int j = 0; j < pos_tab_pol[i].Length; j++)
+                {
+                    richTextBox1.AppendText(pos_tab_pol[i][j].ToString());
+                }
+                richTextBox1.AppendText("\n");
+            }
+            foreach (int i in mis_bin) richTextBox2.AppendText(i.ToString());
+            richTextBox2.AppendText(" - код с ошибкой\n");
+            foreach (int i in mis_simpt) richTextBox2.AppendText(i.ToString());
+            richTextBox2.AppendText(" - симптом ошибки\n");
+            richTextBox2.AppendText((mis_pos_calc + 1).ToString() + " - позиция ошибки");
             /*foreach (int i in px) richTextBox1.AppendText(i.ToString());
             richTextBox1.AppendText("\n");*/
         }
 
-        int[] px, gx, fx, kk = {1, 0, 0, 1};
+        int[] px_pol, px_bin, gx, rx, fx_pol, fx_bin, mis_simpt, mis_bin, mis_pol, kk = {1, 0, 0, 0};
+        int[][] pos_tab_pol;
         int[,] px_tab = {
                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
                             {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
@@ -58,15 +75,72 @@ namespace lab6
         }
         void Calc_px()
         {
-            px = new int[p + 1];
+            px_bin = new int[p + 1];
             int g = 10;
-            for (int i = 0; i < px.Length; i++)
+            for (int i = 0; i < px_bin.Length; i++)
             {
-                px[i] = px_tab[p - 1, g];
+                px_bin[i] = px_tab[p - 1, g];
                 g--;
             }
+            arr_copy(ref px_pol, Calc_pol(px_bin));
            // Array.Reverse(px);
         }
+
+        void Calc_fx()
+        {
+            arr_copy(ref gx, Calc_pol(kk));
+            int[] vrem = new int[gx.Length];
+            arr_copy(ref vrem, mult_pol(gx, p));
+            arr_copy(ref fx_pol, plus_pol(vrem, div_pol(vrem, px_pol)));
+            arr_copy(ref fx_bin, Calc_bin(fx_pol));
+            Array.Reverse(fx_pol);
+        }
+
+        void Calc_pos_tab()
+        {
+            int[] vrem = new int[fx_pol[0] + 1];
+            int[] mis = new int[fx_bin.Length];
+            pos_tab_pol = new int[fx_bin.Length][];
+            for (int i = 0; i < fx_bin.Length; i++)
+                pos_tab_pol[i] = new int[fx_pol[0] + 1]; 
+           // pos_tab_bin = new int[fx_bin.Length, vrem.Length];
+            for (int i = 0; i < fx_bin.Length; i++)
+            {
+                arr_copy(ref mis, fx_bin);
+                if (mis[i] == 0) mis[i] = 1;
+                else mis[i] = 0;
+                arr_copy(ref mis, Calc_pol(mis));
+                arr_copy(ref vrem, div_pol(mis, px_pol));
+                arr_copy(ref pos_tab_pol[i], vrem);
+              /*  arr_copy(ref vrem, Calc_bin(vrem));
+                arr_copy(ref vrem, Calc_bin(vrem, fx_pol[0] + 1));
+                for (int j = 0; j < vrem.Length; j++)
+                pos_tab_bin[i, j] = vrem[j];
+                */
+            }
+        }
+
+        void Calc_mis()
+        {
+            mis_bin = new int[fx_bin.Length];
+            int mis_pos = rand.Next(fx_bin.Length);
+            mis_pos_calc = -1;
+            mis_simpt = new int[1];
+            arr_copy(ref mis_bin, fx_bin);
+            if (mis_bin[mis_pos] == 0) mis_bin[mis_pos] = 1;
+            else mis_bin[mis_pos] = 0;
+            arr_copy(ref mis_pol, Calc_pol(mis_bin));
+            arr_copy(ref mis_simpt, div_pol(mis_pol, px_pol));
+            for (int i = 0; i < fx_bin.Length; i++)
+            {
+                int g = 0;
+                if (pos_tab_pol[i].Length == mis_simpt.Length)
+                    for (int j = 0; j < mis_simpt.Length; j++)
+                        if (pos_tab_pol[i][j] == mis_simpt[j]) g++;
+                if (g == pos_tab_pol[i].Length) mis_pos_calc = i;
+            }
+        }
+
         int[] Calc_pol(int[] bin)
         {
             int count = 0;
