@@ -22,12 +22,11 @@ namespace lab6
         {
             
             Calc_n_p();
-            gx = mult_pol(Calc_pol(kk), p);
+            gx = minus_pol(Calc_pol(kk), Calc_pol(fx));
             foreach (int i in gx) richTextBox1.AppendText(i.ToString());
             richTextBox1.AppendText("\n");
-            px = plus_pol(gx, fx);
-            foreach (int i in px) richTextBox1.AppendText(i.ToString());
-            richTextBox1.AppendText("\n");
+            /*foreach (int i in px) richTextBox1.AppendText(i.ToString());
+            richTextBox1.AppendText("\n");*/
         }
 
         int[] px, gx, fx = {1, 0}, kk = {1, 0, 0, 1};
@@ -71,16 +70,30 @@ namespace lab6
             int count = pol[0] + 1;
             int[] bin = new int[count];
             int g = 0;
+            Array.Reverse(pol);
             for (int i = 0; i < bin.Length; i++)
-                if (bin.Length - 1 - i == pol[g])
+                if (g < pol.Length)
+                if (i == pol[g])
                 {
                     bin[i] = 1;
                     g++;
                 }
                 else bin[i] = 0;
+            Array.Reverse(bin);
             return bin;
         }
-
+        int[] Calc_bin(int[] bin, int count)
+        {
+            int[] result = new int[count];
+            int g = bin.Length - 1;
+            for (int i = result.Length - 1; i >= 0; i--)
+                if (g >= 0)
+                {
+                    result[i] = bin[g];
+                    g--;
+                }
+            return result;
+        }
         int[] mult_pol(int[] pol, int mult)
         {
             for (int i = 0; i < pol.Length; i++) pol[i] += mult;
@@ -101,5 +114,23 @@ namespace lab6
             Array.Reverse(sum);
             return sum;
         }
+
+        int[] minus_pol(int[] pol1, int[] pol2)
+        {
+            pol1 = Calc_bin(pol1);
+            pol2 = Calc_bin(Calc_bin(pol2), pol1.Length);
+            int[] res = new int[pol1.Length];
+            for (int i = 0; i < res.Length; i++)
+                    res[i] = Math.Abs(pol1[i] - pol2[i]);
+            return res;
+        }
+
+     /*   int[] div_pol(int[] pol1, int pol2)
+        {
+            int[] result = new int[1];
+            int[] residue = new int[1]; //остаток
+            residue[0] = pol1[0];
+            while(residue[0] > pol2[0])
+        }*/
     }
 }
