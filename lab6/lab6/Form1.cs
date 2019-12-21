@@ -16,43 +16,20 @@ namespace lab6
         {
             InitializeComponent();
         }
-        int k = 4, n, p, x, y, kol, kp, mis_pos_calc = -1;
+        int k = 30, n, p, mis_pos_calc = -1;
         Random rand = new Random();
         private void button1_Click(object sender, EventArgs e)
         {
             
             Calc_n_p();
             Calc_px();
-            // gx = Calc_pol(kk);
-            /* int[] vrem = new int[gx.Length];
-             arr_copy(ref vrem, mult_pol(gx, p));
-             arr_copy(ref fx, plus_pol(vrem, div_pol(vrem, Calc_pol(px))));*/
             Calc_fx();
             Calc_pos_tab();
             Calc_mis();
-            foreach (int i in fx_pol) richTextBox1.AppendText(i.ToString());
-            richTextBox1.AppendText(" - степени в полиноме циклического кода\n");
-            foreach (int i in fx_bin) richTextBox1.AppendText(i.ToString());
-            richTextBox1.AppendText("- циклический код\n\n");
-            for (int i = 0; i < fx_bin.Length; i++)
-            {
-                richTextBox1.AppendText(i + 1 + " - ");
-                for (int j = 0; j < pos_tab_pol[i].Length; j++)
-                {
-                    richTextBox1.AppendText(pos_tab_pol[i][j].ToString());
-                }
-                richTextBox1.AppendText("\n");
-            }
-            foreach (int i in mis_bin) richTextBox2.AppendText(i.ToString());
-            richTextBox2.AppendText(" - код с ошибкой\n");
-            foreach (int i in mis_simpt) richTextBox2.AppendText(i.ToString());
-            richTextBox2.AppendText(" - симптом ошибки\n");
-            richTextBox2.AppendText((mis_pos_calc + 1).ToString() + " - позиция ошибки");
-            /*foreach (int i in px) richTextBox1.AppendText(i.ToString());
-            richTextBox1.AppendText("\n");*/
+            Output();
         }
 
-        int[] px_pol, px_bin, gx, rx, fx_pol, fx_bin, mis_simpt, mis_bin, mis_pol, kk = {1, 0, 0, 0};
+        int[] px_pol, px_bin, gx, rx, fx_pol, fx_bin, mis_simpt, mis_bin, mis_pol, kk;
         int[][] pos_tab_pol;
         int[,] px_tab = {
                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
@@ -83,11 +60,25 @@ namespace lab6
                 g--;
             }
             arr_copy(ref px_pol, Calc_pol(px_bin));
-           // Array.Reverse(px);
         }
 
         void Calc_fx()
         {
+            bool equal = true;
+            while (equal)
+            {
+                kk = new int[k];
+                int g = 0;
+                int g2 = 0;
+                for (int i = 0; i < k; i++)
+                {
+                    kk[i] = rand.Next(2);
+                    if (k == px_bin.Length) if (kk[i] == px_bin[i]) g++;
+                    if (kk[i] == 1) g2++;
+                }
+                if (k != px_bin.Length && g2 != 0) break;
+                if (g != k && g2 != 0) equal = false;
+            }
             arr_copy(ref gx, Calc_pol(kk));
             int[] vrem = new int[gx.Length];
             arr_copy(ref vrem, mult_pol(gx, p));
@@ -103,7 +94,6 @@ namespace lab6
             pos_tab_pol = new int[fx_bin.Length][];
             for (int i = 0; i < fx_bin.Length; i++)
                 pos_tab_pol[i] = new int[fx_pol[0] + 1]; 
-           // pos_tab_bin = new int[fx_bin.Length, vrem.Length];
             for (int i = 0; i < fx_bin.Length; i++)
             {
                 arr_copy(ref mis, fx_bin);
@@ -112,11 +102,6 @@ namespace lab6
                 arr_copy(ref mis, Calc_pol(mis));
                 arr_copy(ref vrem, div_pol(mis, px_pol));
                 arr_copy(ref pos_tab_pol[i], vrem);
-              /*  arr_copy(ref vrem, Calc_bin(vrem));
-                arr_copy(ref vrem, Calc_bin(vrem, fx_pol[0] + 1));
-                for (int j = 0; j < vrem.Length; j++)
-                pos_tab_bin[i, j] = vrem[j];
-                */
             }
         }
 
@@ -139,6 +124,36 @@ namespace lab6
                         if (pos_tab_pol[i][j] == mis_simpt[j]) g++;
                 if (g == pos_tab_pol[i].Length) mis_pos_calc = i;
             }
+        }
+
+        void Output()
+        {
+            richTextBox1.Clear();
+            richTextBox2.Clear();
+            foreach (int i in kk) richTextBox1.AppendText(i.ToString());
+            richTextBox1.AppendText(" - кодовая комбинация\n");
+            foreach (int i in px_pol) richTextBox1.AppendText(i.ToString() + " ");
+            richTextBox1.AppendText(" - степени образующего полинома\n");
+            richTextBox1.AppendText(n + " - n\n");
+            richTextBox1.AppendText(p + " - p\n");
+            foreach (int i in fx_pol) richTextBox1.AppendText(i.ToString() + " ");
+            richTextBox1.AppendText(" - степени в полиноме циклического кода\n");
+            foreach (int i in fx_bin) richTextBox1.AppendText(i.ToString());
+            richTextBox1.AppendText("- циклический код\n\n");
+            for (int i = 0; i < fx_bin.Length; i++)
+            {
+                richTextBox1.AppendText(i + 1 + " - ");
+                for (int j = 0; j < pos_tab_pol[i].Length; j++)
+                {
+                    richTextBox1.AppendText(pos_tab_pol[i][j].ToString() + " ");
+                }
+                richTextBox1.AppendText("\n");
+            }
+            foreach (int i in mis_bin) richTextBox2.AppendText(i.ToString());
+            richTextBox2.AppendText(" - код с ошибкой\n");
+            foreach (int i in mis_simpt) richTextBox2.AppendText(i.ToString() + " ");
+            richTextBox2.AppendText(" - симптом ошибки\n");
+            richTextBox2.AppendText((mis_pos_calc + 1).ToString() + " - позиция ошибки");
         }
 
         int[] Calc_pol(int[] bin)
@@ -218,8 +233,7 @@ namespace lab6
             pol2 = Calc_bin(Calc_bin(pol2), pol1.Length);
             int[] res = new int[pol1.Length];
             for (int i = 0; i < res.Length; i++)
-                    res[i] = Math.Abs(pol1[i] - pol2[i]);
-            //res = Calc_pol(res);
+                res[i] = Math.Abs(pol1[i] - pol2[i]);
             arr_copy(ref res, Calc_pol(res));
             return res;
         }
@@ -228,16 +242,13 @@ namespace lab6
         {
             
             int[] residue = new int[pol1.Length]; //остаток
-           // Array.Copy(pol1, residue, pol1.Length);
             arr_copy(ref residue, pol1);
             int[] vrem = new int[pol2.Length];
             int[] vrem2 = new int[pol2.Length];
             while (residue[0] >= pol2[0])
             {
                 arr_copy(ref vrem2, pol2);
-               // Array.Copy(mult_pol(pol2, residue[0] - pol2[0]), vrem, pol2.Length);
                 arr_copy(ref vrem, mult_pol(vrem2, residue[0] - vrem2[0]));
-                //residue = minus_pol(residue, vrem);
                 arr_copy(ref residue, minus_pol(residue, vrem));
             }
             return residue;
