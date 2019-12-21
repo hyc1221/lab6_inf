@@ -22,14 +22,20 @@ namespace lab6
         {
             
             Calc_n_p();
-            gx = minus_pol(Calc_pol(kk), Calc_pol(fx));
-            foreach (int i in gx) richTextBox1.AppendText(i.ToString());
+            gx = Calc_pol(kk);
+            int[] vrem = new int[gx.Length];
+            arr_copy(ref vrem, mult_pol(gx, p));
+            arr_copy(ref fx, plus_pol(vrem, div_pol(vrem, px)));
+            foreach (int i in fx) richTextBox1.AppendText(i.ToString());
+            richTextBox1.AppendText("\n");
+            arr_copy(ref fx, Calc_bin(fx));
+            foreach (int i in fx) richTextBox1.AppendText(i.ToString());
             richTextBox1.AppendText("\n");
             /*foreach (int i in px) richTextBox1.AppendText(i.ToString());
             richTextBox1.AppendText("\n");*/
         }
 
-        int[] px, gx, fx = {1, 0}, kk = {1, 0, 0, 1};
+        int[] px = {3,2,0}, gx, fx, kk = {1, 0, 0, 1};
         int[,] px_tab = {
                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
                             {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
@@ -63,6 +69,12 @@ namespace lab6
                     g++;
                 }
             return pol;
+        }
+
+        void arr_copy(ref int[] arr1, int[] arr2)
+        {
+            arr1 = new int[arr2.Length];
+            for (int i = 0; i < arr2.Length; i++) arr1[i] = arr2[i];
         }
 
         int[] Calc_bin(int[] pol)
@@ -122,15 +134,28 @@ namespace lab6
             int[] res = new int[pol1.Length];
             for (int i = 0; i < res.Length; i++)
                     res[i] = Math.Abs(pol1[i] - pol2[i]);
+            //res = Calc_pol(res);
+            arr_copy(ref res, Calc_pol(res));
             return res;
         }
 
-     /*   int[] div_pol(int[] pol1, int pol2)
+        int[] div_pol(int[] pol1, int[] pol2)
         {
-            int[] result = new int[1];
-            int[] residue = new int[1]; //остаток
-            residue[0] = pol1[0];
-            while(residue[0] > pol2[0])
-        }*/
+            
+            int[] residue = new int[pol1.Length]; //остаток
+           // Array.Copy(pol1, residue, pol1.Length);
+            arr_copy(ref residue, pol1);
+            int[] vrem = new int[pol2.Length];
+            int[] vrem2 = new int[pol2.Length];
+            while (residue[0] >= pol2[0])
+            {
+                arr_copy(ref vrem2, pol2);
+               // Array.Copy(mult_pol(pol2, residue[0] - pol2[0]), vrem, pol2.Length);
+                arr_copy(ref vrem, mult_pol(vrem2, residue[0] - vrem2[0]));
+                //residue = minus_pol(residue, vrem);
+                arr_copy(ref residue, minus_pol(residue, vrem));
+            }
+            return residue;
+        }
     }
 }
