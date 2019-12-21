@@ -22,11 +22,15 @@ namespace lab6
         {
             
             Calc_n_p();
-            gx = Calc_pol(kk);
+            gx = mult_pol(Calc_pol(kk), p);
             foreach (int i in gx) richTextBox1.AppendText(i.ToString());
+            richTextBox1.AppendText("\n");
+            px = plus_pol(gx, fx);
+            foreach (int i in px) richTextBox1.AppendText(i.ToString());
+            richTextBox1.AppendText("\n");
         }
 
-        int[] px, gx, fx, kk = {1, 0, 0, 1};
+        int[] px, gx, fx = {1, 0}, kk = {1, 0, 0, 1};
         int[,] px_tab = {
                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
                             {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
@@ -62,10 +66,40 @@ namespace lab6
             return pol;
         }
 
+        int[] Calc_bin(int[] pol)
+        {
+            int count = pol[0] + 1;
+            int[] bin = new int[count];
+            int g = 0;
+            for (int i = 0; i < bin.Length; i++)
+                if (bin.Length - 1 - i == pol[g])
+                {
+                    bin[i] = 1;
+                    g++;
+                }
+                else bin[i] = 0;
+            return bin;
+        }
+
         int[] mult_pol(int[] pol, int mult)
         {
             for (int i = 0; i < pol.Length; i++) pol[i] += mult;
             return pol;
+        }
+
+        int[] plus_pol(int[] pol1, int[] pol2)
+        {
+            int[] sum = new int[pol1.Length + pol2.Length];
+            for (int i = 0; i < pol1.Length; i++) sum[i] = pol1[i];
+            int g = 0;
+            for (int i = pol1.Length; i < sum.Length; i++)
+            {
+                sum[i] = pol2[g];
+                g++;
+            }
+            Array.Sort(sum);
+            Array.Reverse(sum);
+            return sum;
         }
     }
 }
