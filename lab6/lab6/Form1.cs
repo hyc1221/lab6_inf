@@ -22,10 +22,11 @@ namespace lab6
         {
             
             Calc_n_p();
+            Calc_px();
             gx = Calc_pol(kk);
             int[] vrem = new int[gx.Length];
             arr_copy(ref vrem, mult_pol(gx, p));
-            arr_copy(ref fx, plus_pol(vrem, div_pol(vrem, px)));
+            arr_copy(ref fx, plus_pol(vrem, div_pol(vrem, Calc_pol(px))));
             foreach (int i in fx) richTextBox1.AppendText(i.ToString());
             richTextBox1.AppendText("\n");
             arr_copy(ref fx, Calc_bin(fx));
@@ -35,7 +36,7 @@ namespace lab6
             richTextBox1.AppendText("\n");*/
         }
 
-        int[] px = {3,2,0}, gx, fx, kk = {1, 0, 0, 1};
+        int[] px, gx, fx, kk = {1, 0, 0, 1};
         int[,] px_tab = {
                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
                             {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
@@ -55,7 +56,17 @@ namespace lab6
                 n++;
             p = n - k;
         }
-
+        void Calc_px()
+        {
+            px = new int[p + 1];
+            int g = 10;
+            for (int i = 0; i < px.Length; i++)
+            {
+                px[i] = px_tab[p - 1, g];
+                g--;
+            }
+           // Array.Reverse(px);
+        }
         int[] Calc_pol(int[] bin)
         {
             int count = 0;
